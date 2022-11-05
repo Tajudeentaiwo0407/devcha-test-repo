@@ -109,8 +109,25 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>16</source>
+					<target>16</target>
+					<fork>true</fork>
+                                           <compilerArgs>
+                                               <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+                                               <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+                                               <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+                                               <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+                                               <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+                                               <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+                                               <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                                               <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+                                               <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                                               <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
+                                           </compilerArgs>
+                                           <!--for unmappable characters in classes-->
+                                           <encoding>UTF-8</encoding>
+                                           <showDeprecation>true</showDeprecation>
+                                           <showWarnings>true</showWarnings>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.mapstruct</groupId>
@@ -125,6 +142,68 @@
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>com.github.eirslett</groupId>
+				<artifactId>frontend-maven-plugin</artifactId>
+				<version>1.7.6</version>
+				<executions>
+					<execution>
+                                            <id>Install Node and Npm....</id>
+					    <goals>
+						<goal>install-node-and-npm</goal>
+					    </goals>
+					    <phase>generate-resources</phase>
+					    <configuration>
+						    <nodeVersion>v18.12.0</nodeVersion>
+						    <npmVersion>8.19.2</npmVersion>
+					    </configuration>
+				        </execution>
+				        <execution>
+                                            <id>npm install all our dependencies</id>
+					    <goals>
+					         <goal>npm</goal>
+					    </goals>
+					    <phase>generate-resources</phase>
+					    <configuration>
+                                                <arguments>install --legacy-peer-deps</arguments>
+                                            </configuration>						    
+				        </execution>
+                                        <execution>
+						<id>npm build our react application</id>
+						<goals>
+						    <goal>npm</goal>	
+					        </goals>
+						<phase>generate-resources</phase>
+						<configuration>
+							<arguments>run build</arguments>
+						</configuration>	
+                                        </execution>	
+				</executions>
+				<configuration>
+				        <workingDirectory>src/main/validator-frontend</workingDirectory>
+				</configuration>
+			  </plugin>
+				<plugin>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-resources-plugin</artifactId>
+                                        <executions>
+                                            <execution>
+                                            <id>Copy my react frontend to the static folder of my spring application target folder</id>
+                                            <phase>validate</phase>
+                                            <goals>
+                                              <goal>copy-resources</goal>
+                                            </goals>
+                                            <configuration>
+						    <outputDirectory>./target/classes/static</outputDirectory>
+						    <resources>
+							    <resource>
+							         <directory>src/main/validator-frontend/build</directory>
+						            </resource>
+                                                    </resources>
+                                            </configuration>
+                                            </execution>
+                                       </executions>
+                              </plugin>
 		</plugins>
 	</build>
 </project>
